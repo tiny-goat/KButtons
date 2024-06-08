@@ -97,3 +97,13 @@ What you need to do here is check that the IR codes that the Arduino sends match
 In the Arduino source code you'll find a section where it'll send a POWER command when the board boots up. This is because I'm powering the Arduino from the USB socket on the TV.. the USB port is only powered when the TV is on, so we know that when the board boots, we also need to turn the speakers on. If your TV works differently, or you're using this project in a different way, just comment out that section.
 
 There's another block of code that looks for a sequence of button presses.. in my case I wanted some way to toggle the power of the speakers in case they ended up out-of-sync somehow. I'm looking for the MUTE button to be pressed 3x followed by VOL UP, which then triggers the POWER IR code to be sent. You may not need this, or want a different sequence/action.. in which case alter the Arduino code to do whatever you like.
+
+# Donations Welcome :)
+
+If you find value in what I've created, I'd be incredibly grateful if you considered showing your appreciation with a donation to my tip jar. Even the smallest contribution means the world to me and fuels my passion to keep creating and sharing. Thank you from the bottom of my heart for your kindness and support – it truly makes my day!
+
+You can send a tip through this link, or the QR code below;
+
+[![Donate](images/donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=C8B5GHVPUUDNC)
+
+[![Donate](images/donateQRcode.png)](https://www.paypal.com/donate/?hosted_button_id=C8B5GHVPUUDNC)
