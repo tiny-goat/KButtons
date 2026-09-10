@@ -1,109 +1,31 @@
-# IRtranslator
-__Arduino IR Code Translator__ - Converts incoming IR codes from one manufacturer to another. You can use the Arduino source code to define the inbound IR codes you want to capture & have another IR code sent out. This lets you translate from one manufacturer to another.
+# KButtons
+__KButtons IR Translator For Karaoke__ - Converts incoming IR codes from one player manufacturer to another. You can use the Arduino source code to define the inbound IR codes you want to capture & have another IR code sent out. This lets you translate from one player manufacturer to another.
 
-This project came about when the Amazon Fire TV equipment control feature didn't have my model of speakers (Edifier R1855DB or R1850DB) in their list. None of the other models worked, and I didn't hold out much hope at having the them added by Amazon, especially when Edifier support said *"Our remotes use custom IR codes that can not be inputted into a universal remote"*. And, *"information about the IR code is not open to the public"* -- **challenge accepted!!**
+I had thoughts of this project when i realized that karaoke machine users mainly have to use a specific "Button PCB" that is very much closed-source but is basically a hand remote but with extra steps.
 
-# Video of the Project
+Main issue is if they want to switch to another player brand, they very much have to remove the old PCB and rewire the new one all over again, and thinking about it, should it be easier if it could be just an arduino translating the IR codes instead?
 
-[![Watch the YouTube video for this project](images/ytThumb.png)](https://www.youtube.com/watch?v=rTCGy0bqljE)
+# Features
 
-# Part List
+KButtons has a distinguishing feature, mainly called "SHIFT". This functionality allows you to have a 2nd set of functions off of the same button, similar to a computer's keyboard.
+This is a **toggle** feature, meaning you only press it once to enable the SHIFT layer, and press it once again to revert back to the original button functions. Pretty neat, right?
 
-There's not much to this project.. you can substitute the KY-005 with an IR LED and NPN transistor if you like.
+## Notes
 
-1. Arduino (most will be fine.. I'm using a Nano)
-2. IR receiver/photodiode
+The source code currently accomodates translating from a generic IR Board to IR Commands for a MNation player. You can modify the code to further suit your needs.
+
+# Parts List
+
+This project is pretty simple.. you can substitute the KY-005 with an IR LED and NPN transistor if you like.
+
+1. Arduino (any should be fine.. I'm using a Nano)
+2. IR receiver (VS1838, or similar)
 3. IR transmitter (KY-005)
-4. Wires & breadboard
+4. LED (for SHIFT indicator)
+5. Wires & breadboard (breadboard is optional, you can hardwire everything yourself, if you so choose.)
 
-# Wiring Diagram
+# Requirements (Software)
+1. Arduino IDE
+2. IRremote (Please use library version 3.0.0, v4 isnt compatible with this code.)
 
-Here's how to wire the components up.. it looks more complicated than it is! There's probably a better way to lay this out?
-
-![Board Design](images/boardDesign.png)
-
-Here's how mine looks on a breadboard. You can see how I've ignored my own wiring diagram so that I use less wires ;) After I finished prototyping, I put the IR transmitter and receiver on longer cables to place them more neatly next to the equipment.
-
-![Board Picture](images/boardPic.png)
-
-# Arduino IDE Setup
-
-## IRRemote Library
-
-After setting up the components as per the wiring diagram above, open up the Arduino IDE and make sure you've installed the 'IRremote' library;
-
-![Board Settings](images/irLib.png) 
-
-Note: I'm using version 3.5 of the IRremote library, and v4 isn't compatible with the code I've written. 
-
-## Board Settings
-
-Then select your Arduino board type and the correct port when it's attached to your PC via USB. Mine looks like this;
-
-![Board Settings](images/boardSettings.png) 
-
-## Upload the Sourcecode
-
-Now you can upload the code (in src/irtranslator) into the Arduino using the Arduino IDE. Keep it attached to the PC so that you can look in the Serial Monitor to copy down the codes that get sent into the IR receviver.
-
-# Capturing the IR Codes
-
-You'll need to decide what your source and target brands will be, and what buttons you want to translate. In my case, I chose to have the Fire TV remote transmit codes for an Amazon Basics Soundbar. I'll then need to send out IR codes for an Edifier R1855DB/R1850DB.
-
-Go through the buttons you want to capture and note them down (you're best copying both lines.. the one with the shorter code, and the full RAW data);
-
-![Serial Monitor Dump](images/workingSerial.png?v=2) 
-
-## Edit the Sourcecode for the Inbound IR Codes
-
-Once you have those inbound IR codes (and you chose not to use the Amazon Basics Soundbar), edit the Arduino code in the highlighted areas;
-
-![Serial Monitor Dump](images/inboundCodes.png) 
-
-## Edit the Sourcecode for the Outbound IR Codes
-
-Then take the second remote (in my case, the Edifier R1855DB speaker remote) and note down the IR codes for that. This is the bit which might require the most effort on your part.. I used a load of time trying to get the right format which would be correctly transmitted.
-
-The RAW codes worked best for me, so that's what you'll see in the Arduino code.. replace the values in the arrays with whatever you find gets transmitted by your second remote.
-
-![Serial Monitor Dump](images/rawCodes.png) 
-
-# Testing it Works
-
-You should now be able to compile the modified Arduino code & upload it to the board. Keep your PC attached to view the Serial Monitor output and when your use the Fire TV remote, it should show the keypresses are recognised correctly, and it **should** send out the translated IR code you want.
-
-One thing that I needed to do was hook up a second board to fully test what was being trasnmitted matched the second remote control. I actually have a Raspberry Pi with IR receiver, so I switched that to dump IR commands to the console & was able to use that to debug the IR trasmissions.
-
-## Raspberry Pi IR Dump
-
-Since I was already using the IR receiver on the Pi with LIRC, I had to temporarily turn LIRC off to allow another program to use it.
-
-`sudo systemctl stop lircd_helper@lirc0`
-
-Then I told IRKeytable to listen to all IR protocols;
-
-`sudo ir-keytable -p all`
-
-You can then listen to the IR signals it receives;
-
-`ir-keytable -t -s rc0`
-
-![Pi Listener](images/piListen.png) 
-
-What you need to do here is check that the IR codes that the Arduino sends match the ones from the second remote control you're trying to replace/emulate.
-
-# Final Touches
-
-In the Arduino source code you'll find a section where it'll send a POWER command when the board boots up. This is because I'm powering the Arduino from the USB socket on the TV.. the USB port is only powered when the TV is on, so we know that when the board boots, we also need to turn the speakers on. If your TV works differently, or you're using this project in a different way, just comment out that section.
-
-There's another block of code that looks for a sequence of button presses.. in my case I wanted some way to toggle the power of the speakers in case they ended up out-of-sync somehow. I'm looking for the MUTE button to be pressed 3x followed by VOL UP, which then triggers the POWER IR code to be sent. You may not need this, or want a different sequence/action.. in which case alter the Arduino code to do whatever you like.
-
-# Donations Welcome :)
-
-If you find value in what I've created, I'd be incredibly grateful if you considered showing your appreciation with a donation to my tip jar. Even the smallest contribution means the world to me and fuels my passion to keep creating and sharing. Thank you from the bottom of my heart for your kindness and support – it truly makes my day!
-
-You can send a tip through this link, or the QR code below;
-
-[![Donate](images/donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=C8B5GHVPUUDNC)
-
-[![Donate](images/donateQRcode.png)](https://www.paypal.com/donate/?hosted_button_id=C8B5GHVPUUDNC)
+For instructions, you can check out the original repo!
