@@ -41,7 +41,7 @@ If not, please refer to the original ![repo](https://github.com/mattcuk/IRtransl
 6. Use the IR extraction sketch to extract the select buttons of both 2 target devices, and take note of the IR codes;
 7. And then write those to your main KButtons sketch file and finally flash that one to your Arduino of choice.
 
-8. If all works out, you should get functionality that would otherwise wouldve required you rewiring an entire button system!
+8. If all works out, you should get functionality that would otherwise would've required you rewiring an entire button system!
 
 ## Requirements (Software)
 1. Arduino IDE
